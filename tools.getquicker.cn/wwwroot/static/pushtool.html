@@ -1,0 +1,214 @@
+﻿<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>发送到电脑-- Quicker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+</head>
+<body>
+    <section class="section mb-5" id="app">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-12 col-lg-8">
+                    <h3 class="title mt-3 mb-4">
+                        推送文本到电脑
+                        <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
+
+                            连接设置
+                        </a>
+                    </h3>
+                    <form>
+                        <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
+                            <div class="mb-3 row">
+                                <label class=" col-form-label col-sm-3">Email：</label>
+                                <div class="col-sm-9">
+                                    <input type='text' class='form-control' v-model='toUser'>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class=" col-form-label col-sm-3">推送验证码：</label>
+                                <div class="col-sm-9">
+                                    <input type='password' class='form-control' v-model='code'>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-form-label col-sm-3">目标设备：</label>
+                                <div class="col-sm-9">
+                                    <select id="toDevice" v-model="toDevice" class="form-select">
+                                        <option value=''>*活动*</option>
+                                        <option value="*">*所有主机*</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3  justify-content-end">
+                                <div class="col-sm-9">
+
+                                    <div class="input-group">
+                                        <div class="input-group-text">
+                                            <input type="checkbox" class="form-check-input mt-0 mr-1" id="chkWait">
+                                            <label class="form-check-label ml-3" for="chkWait" v-model="wait">&nbsp;等待返回结果</label>
+                                        </div>
+                                        <input type="number" class="form-control" id="maxWaitMs" v-model="maxWaitMs" aria-describedby="emailHelp">
+                                        <span class="input-group-text" id="basic-addon2">毫秒</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3 justify-content-end">
+                                <div class="col-sm-9">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" v-model="autoClear" id="flexCheckDefault">
+                                        <label class="form-check-label" for="flexCheckDefault">
+                                            发送成功后自动清除内容
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+
+                            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+
+                                <template v-for="op in operationTypes">
+                                    <input type="radio" class="btn-check" name="operation" v-bind:id='"radio" + op.value' autocomplete="off" v-model='operation' :value='op.value'>
+                                    <label class="btn btn-outline-secondary" v-bind:for='"radio" + op.value'>{{op.name}}</label>
+                                </template>
+                            </div>
+
+                        </div>
+                        <div class="mb-3 row" v-if="operation === 'ACTION'">
+                            <label class=" col-form-label col-sm-3">动作名称/ID：</label>
+                            <div class="col-sm-9">
+                                <input type="text" v-model="action" class="form-control" id="action" aria-describedby="emailHelp">
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">要复制或粘贴的内容、打开的网址，或动作的参数:</label>
+                            <textarea v-model="data" class="form-control" rows="8" id="txtData" aria-describedby="emailHelp"></textarea>
+
+                        </div>
+
+
+
+                    </form>
+                    <div class="row">
+                        <div class='col-8 d-grid'>
+                            <button v-on:click="submit" class="btn btn-primary">发送</button>
+                        </div>
+                        <div class='col-4  d-grid '>
+                            <button v-on:click="clear" class="btn  btn-secondary">清除</button>
+                        </div>
+                    </div>
+
+                    <div id="result" class='mt-4' v-if='resp.data '>
+                        <div>
+                            <div v-if='resp.data && resp.data.isSuccess' class='text-success  p-2'>操作成功！</div>
+                            <div v-if='resp.data && resp.data.errorMessage' class='text-danger p-2'>{{resp.data.errorMessage}}</div>
+                        </div>
+
+                        <div class='border mt-2 rounded' v-bind:class="{ 'border-success': resp.data && resp.data.isSuccess, 'border-danger': resp.data && resp.data.isSuccess === false }">
+                            <pre class='bg-light m-0  p-3  small '>{{JSON.stringify(resp.data, null, 4) }}</pre>
+                        </div>
+                        <div class='p-2 mt-3' v-if='error'>
+                            {{error}}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <div class='mt-5 mb-5 p-5'>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+    function setFocusToData(){
+        document.getElementById('txtData').focus();
+    }
+
+
+    const queryString = window.location.search;
+    let email = '';
+    let code = '';
+    if (queryString){
+        const urlParams = new URLSearchParams(queryString);
+        email = urlParams.get('email')
+        code = urlParams.get('code');
+
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            toUser: email,
+            code: code,
+            toDevice:'',
+            operation: 'PASTE',
+            action: '',
+            data: '',
+            wait: true,
+            maxWaitMs: 3000,
+            resp:{
+
+            },
+            error: false,
+            operationTypes:[
+                {value:'PASTE',name:'粘贴到窗口'},
+                {value:'COPY',name:'复制'},
+                {value:'OPEN',name:'打开网址'},
+                {value:'ACTION',name:'运行动作'}
+            ],
+            autoClear: false
+        },
+        methods: {
+            submit: function () {
+                vm = this;
+                vm.resp = {};
+                console.log(vm);
+                //
+                //alert(this);
+                axios({
+                    method: 'post',
+                    url: 'https://push.getquicker.cn/to/quicker',
+                    data: {
+                        toUser: vm.toUser,
+                        code: vm.code,
+                        toDevice: vm.toDevice,
+                        operation: vm.operation,
+                        action: vm.action,
+                        data: vm.data,
+                        wait: vm.wait,
+                        maxWaitMs: vm.maxWaitMs
+                    }
+                }).then(function(response) {
+                    console.log('请求返回结果：', response);
+                    vm.resp = response;
+                    //alert(response.data);
+
+                    if (response.data.isSuccess){
+                        vm.data = '';
+                    }
+                    setFocusToData();
+                }).catch(function(error){
+                    console.error(error);
+                    vm.error = error;
+                });
+            },
+            clear: function(){
+                this.data = '';
+            }
+        }
+    })
+    </script>
+</body>
+</html>
