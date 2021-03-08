@@ -37,6 +37,7 @@ namespace tools.getquicker.cn
             });
 
             services.AddControllers();
+            services.AddRazorPages();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "tools.getquicker.cn", Version = "v1" });
@@ -66,6 +67,7 @@ namespace tools.getquicker.cn
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
             });
         }
     }

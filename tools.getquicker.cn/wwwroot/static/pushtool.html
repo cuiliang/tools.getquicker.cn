@@ -68,15 +68,12 @@
                         </div>
 
                         <div class="mb-3 row">
-
                             <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-
                                 <template v-for="op in operationTypes">
                                     <input type="radio" class="btn-check" name="operation" v-bind:id='"radio" + op.value' autocomplete="off" v-model='operation' :value='op.value'>
                                     <label class="btn btn-outline-secondary" v-bind:for='"radio" + op.value'>{{op.name}}</label>
                                 </template>
                             </div>
-
                         </div>
                         <div class="mb-3 row" v-if="operation === 'ACTION'">
                             <label class=" col-form-label col-sm-3">动作名称/ID：</label>
@@ -91,8 +88,6 @@
                             <textarea v-model="data" class="form-control" rows="8" id="txtData" aria-describedby="emailHelp"></textarea>
 
                         </div>
-
-
 
                     </form>
                     <div class="row">
@@ -143,7 +138,8 @@
         email = urlParams.get('email')
         code = urlParams.get('code');
 
-        window.history.replaceState(null, null, window.location.pathname);
+        // 从url中自动清除email和密码
+        //window.history.replaceState(null, null, window.location.pathname);
     }
 
 
@@ -195,7 +191,7 @@
                     vm.resp = response;
                     //alert(response.data);
 
-                    if (response.data.isSuccess){
+                    if (response.data.isSuccess && vm.autoClear){
                         vm.data = '';
                     }
                     setFocusToData();
