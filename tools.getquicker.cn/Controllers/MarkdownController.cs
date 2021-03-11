@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Markdig;
+using Microsoft.AspNetCore.Mvc;
 using QuickerWebTools.Entities;
 using ReverseMarkdown;
 
@@ -12,6 +13,8 @@ namespace QuickerWebTools.Controllers
     [ApiController]
     public class MarkdownController : ControllerBase
     {
+        #region Html2Markdown
+
         /// <summary>
         /// 将Html代码片段转换为Markdown代码（Get方式，只适合少量数据）
         /// </summary>
@@ -30,12 +33,57 @@ namespace QuickerWebTools.Controllers
         /// <returns>Markdown文本</returns>
         [HttpPost]
         [Route("/api/[controller]/Html2MarkDown")]
-        public string Html2MarkDownPost([FromBody]CommonRequestVm vm)
+        public string Html2MarkDownPost([FromBody] CommonRequestVm vm)
         {
             return ConvertHtmlToMarkdown(vm.Source);
         }
 
 
+
+        #endregion
+
+
+        #region Markdown2Html
+
+        /// <summary>
+        /// 将Markdown代码转换为html
+        /// </summary>
+        /// <param name="source">待转换的Markdown代码</param>
+        /// <returns>html内容</returns>
+        [HttpGet]
+        public string Markdown2Html(string source)
+        {
+            var html = ConvertMarkdownToHtml(source);
+
+            return html;
+        }
+
+
+        /// <summary>
+        /// 将Markdown代码转换为html
+        /// </summary>
+        /// <param name="vm">在请求体中传入要转换的markdown代码内容</param>
+        /// <returns>HTML代码</returns>
+        [HttpPost]
+        [Route("/api/[controller]/Markdown2Html")]
+        public string Markdown2Html([FromBody] CommonRequestVm vm)
+        {
+            return ConvertMarkdownToHtml(vm.Source);
+        }
+
+
+        #endregion
+
+
+
+        #region 内部代码
+
+
+        /// <summary>
+        /// 将html转换为markdown
+        /// </summary>
+        /// <param name="source">待转换的html代码</param>
+        /// <returns>生成的markdown代码</returns>
         private static string ConvertHtmlToMarkdown(string source)
         {
             if (string.IsNullOrEmpty(source))
@@ -57,5 +105,27 @@ namespace QuickerWebTools.Controllers
             var markdown = converter.Convert(source);
             return markdown;
         }
+
+
+
+        /// <summary>
+        /// 将Markdown转换为HTML
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private static string ConvertMarkdownToHtml(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return source;
+            }
+
+            // Configure the pipeline with all advanced extensions active
+            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            var html = Markdown.ToHtml(source, pipeline);
+            return html;
+        }
+
+        #endregion
     }
 }
