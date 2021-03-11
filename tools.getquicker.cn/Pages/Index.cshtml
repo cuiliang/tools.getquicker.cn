@@ -1,19 +1,29 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Quicker辅助工具";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>
-        欢迎使用Quicker辅助工具。
-    </p>
+<div >
+    <div class="bg-light p-2 rounded mb-3">
+        本站点提供了一些通用的API，方便您使用Quicker或其它工具处理文本（或其它）内容。
+        <br/>
+        <a href="https://github.com/cuiliang/tools.getquicker.cn">源代码Github仓库（基于.Net 5.0）</a>。
+        
+    </div>
+   
+    <h2>网页工具</h2>
     <ul style="list-style: none;">
         <li>
             <a href="/static/pushtool.html">推送小工具：从手机发送文本到电脑。</a>
         </li>
     </ul>
-    <hr/>
-    <p>本网站已开源在：<a href="https://github.com/cuiliang/tools.getquicker.cn">Github仓库</a>。</p>
+    <h2 class="mt-5">
+        API工具
+    </h2>
+    <ul style="list-style: none">
+        <li>
+            <a href="/swagger/">浏览API文档。</a>
+        </li>
+    </ul>
 </div>

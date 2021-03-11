@@ -1,6 +1,6 @@
 using System;
 
-namespace tools.getquicker.cn
+namespace QuickerWebTools
 {
     public class WeatherForecast
     {
