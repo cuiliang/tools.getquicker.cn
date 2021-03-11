@@ -12,5 +12,15 @@ namespace QuickerWebTools.Entities
         /// </summary>
         [NotNull]
         public string Source { get; set; }
+
+        public CommonRequestVm()
+        {
+            
+        }
+
+        public CommonRequestVm(string source)
+        {
+            Source = source;
+        }
     }
 }

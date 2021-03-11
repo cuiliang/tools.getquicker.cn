@@ -5,6 +5,13 @@ VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tools.getquicker.cn", "tools.getquicker.cn\tools.getquicker.cn.csproj", "{DB437B10-C480-4E4A-ACF3-34FA0FAE6281}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tools.getquicker.cnTests", "tools.getquicker.cnTests\tools.getquicker.cnTests.csproj", "{FA4C2BFC-2E8E-497A-9902-467F6D3CDBD3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C38A2BB2-CF9E-4A22-9180-5F9521495546}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{DB437B10-C480-4E4A-ACF3-34FA0FAE6281}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB437B10-C480-4E4A-ACF3-34FA0FAE6281}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB437B10-C480-4E4A-ACF3-34FA0FAE6281}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA4C2BFC-2E8E-497A-9902-467F6D3CDBD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA4C2BFC-2E8E-497A-9902-467F6D3CDBD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA4C2BFC-2E8E-497A-9902-467F6D3CDBD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA4C2BFC-2E8E-497A-9902-467F6D3CDBD3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
