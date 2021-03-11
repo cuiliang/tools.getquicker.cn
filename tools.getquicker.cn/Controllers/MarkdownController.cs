@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuickerWebTools.Entities;
+using ReverseMarkdown;
 
 namespace QuickerWebTools.Controllers
 {
@@ -41,8 +42,18 @@ namespace QuickerWebTools.Controllers
             {
                 return "";
             }
+            var config = new ReverseMarkdown.Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass,
+                // generate GitHub flavoured markdown, supported for BR, PRE and table tags
+                GithubFlavored = true,
+                // will ignore all comments
+                RemoveComments = true,
+                // remove markdown output for links where appropriate
+                SmartHrefHandling = true
+            };
 
-            var converter = new ReverseMarkdown.Converter();
+            var converter = new ReverseMarkdown.Converter(config);
             var markdown = converter.Convert(source);
             return markdown;
         }
