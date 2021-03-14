@@ -9,9 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.23.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta2" />
     <PackageReference Include="ReverseMarkdown" Version="3.19.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
     <PackageReference Include="ToolGood.Words" Version="3.0.2.4" />
+    <PackageReference Include="YamlDotNet" Version="9.1.4" />
   </ItemGroup>
 
 </Project>

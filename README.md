@@ -17,3 +17,5 @@ https://tools.getquicker.cn/swagger/index.html
 - https://github.com/toolgood/ToolGood.Words
 - https://github.com/xoofx/markdig
 - https://github.com/mysticmind/reversemarkdown-net
+- https://github.com/aaubry/YamlDotNet
+
