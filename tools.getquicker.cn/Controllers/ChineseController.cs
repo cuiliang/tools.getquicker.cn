@@ -290,6 +290,7 @@ namespace QuickerWebTools.Controllers
         [HttpGet]
         public decimal ToRmbNumber(string source)
         {
+            
             return WordsHelper.ToNumber(source);
         }
 
