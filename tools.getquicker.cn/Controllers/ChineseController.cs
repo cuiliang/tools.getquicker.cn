@@ -45,7 +45,7 @@ namespace QuickerWebTools.Controllers
         [HttpPost]
         public string GetPinyin([FromBody] CommonRequestVm vm, string separator = "", bool tone = false, bool forName = false)
         {
-            return WordsHelper.GetPinyin(vm.Source, separator, tone);
+            return GetPinyinInternal(vm.Source, separator, tone, forName);
         }
 
         /// <summary>
