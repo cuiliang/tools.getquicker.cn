@@ -91,10 +91,13 @@
 
                     </form>
                     <div class="row">
-                        <div class='col-8 d-grid'>
+                        <div class='col-3 d-grid'>
+                            <button v-on:click="paste" class="btn btn-outline-secondary">粘贴</button>
+                        </div>
+                        <div class='col-6 d-grid'>
                             <button v-on:click="submit" class="btn btn-primary">发送</button>
                         </div>
-                        <div class='col-4  d-grid '>
+                        <div class='col-3  d-grid '>
                             <button v-on:click="clear" class="btn  btn-secondary">清除</button>
                         </div>
                     </div>
@@ -202,6 +205,15 @@
             },
             clear: function(){
                 this.data = '';
+            },
+            paste: function() {
+                navigator.clipboard.readText()
+                    .then(text => {
+                        this.data = text;
+                    })
+                    .catch(err => {
+                        alert('获取剪贴板内容失败：' + err.message);
+                    });
             }
         }
     })
