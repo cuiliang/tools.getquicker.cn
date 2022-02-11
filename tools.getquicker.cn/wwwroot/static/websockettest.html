@@ -21,17 +21,33 @@
                 <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
                     连接设置
                 </a>
-                </h3>
-                <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
-
+            </h5>
+            <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
+                <div class="mb-3 row">
+                    <label class=" col-form-label col-sm-3">电脑IP和端口：</label>
+                    <div class="col-sm-9">
+                        <input type='text' class='form-control' id='txtIpAndPort' title="192.168.1.10:668">
+                    </div>
                 </div>
-                <div>
-                    <span id="state"></span>
+                <div class="mb-3 row">
+                    <label class=" col-form-label col-sm-3">验证码：</label>
+                    <div class="col-sm-9">
+                        <input type='password' class='form-control' id='txtPassword'>
+                    </div>
                 </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-primary" id="btnSave" onclick="saveSettings()">保存</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span id="state">未连接.</span>
+            </div>
         </div>
         <div>
-            <h5>上传文件</h2>
-                <input type="file" id="theFile" onchange="sendFile()" />
+            <h5>发送文件</h5>
+            <input type="file" id="theFile" onchange="sendFile()" />
         </div>
 
         <div class="toast-container">
@@ -52,59 +68,116 @@
             crossorigin="anonymous"></script>
         <script>
 
-            // create websocket connection.
-            const socket = new WebSocket('ws://localhost:668/ws');
-
-            var msgSerial = 1;
-
-            document.getElementById('state').innerHTML = '<font color=gray>连接中...</font>';
-
-            // register events
-            socket.addEventListener('open', function (event) {
-                console.log('websocket connected.', event);
-                document.getElementById('state').innerHTML = '<font color=green>已连接</font>';
-            });
-
-            socket.addEventListener('error', function (event) {
-                console.warn('websocket error.', event);
-                document.getElementById('state').innerHTML = '<font color=red>Error</font>';
-            });
-
-            socket.addEventListener('close', function (event) {
-                console.warn('websocket closed.', event);
-                document.getElementById('state').innerHTML = '<font color=black>已关闭</font>';
-            });
-
-            var _nextFileName = undefined;
-
-            socket.addEventListener('message', function (event) {
-                console.log('websocket message:', event);
-
-                var data = event.data;
-                if (typeof data === 'string' || data instanceof String) {
-                    var msg = JSON.parse(data);
-
-                    // 请求消息
-                    if (msg.messageType === 2) {
-                        if (msg.operation === 'sendfile') {
-                            _nextFileName = msg.data;
-                            console.log('next file name:', _nextFileName);
-                        }
-                    }
-                } else {
-                    // 文件内容数据
-                    if (_nextFileName) {
-                        SaveBlobAs(data, _nextFileName);
-                        _nextFileName = undefined;
-                        //TODO: 提示已接收到文件并保存
-                    } else {
-                        console.warn('Blob消息，没有要接收的文件。');
-                    }
+            var socket; // WebSocket对象
+            var _nextFileName = undefined; // 接收文件的文件名
 
 
+            // 加载设置数据
+            function loadData() {
+                var uri = localStorage.getItem('txtIpAndPort');
+                if (uri) {
+                    document.getElementById('txtIpAndPort').value = uri;
+                }
+                var pwd = localStorage.getItem('txtPassword');
+                if (pwd) {
+                    document.getElementById('txtPassword').value = uri;
                 }
 
-            });
+                createSocket();
+            };
+
+            loadData();
+
+
+            // 保存设置数据
+            function saveSettings(){
+                let uri = document.getElementById('txtIpAndPort').value;
+
+                if (!uri.match(/\d+\.\d+\.\d+\.\d+\:\d+/i)){
+                    alert('格式不合法，应该为“IP地址:端口”。可参考：192.168.1.100:668')
+                    return;
+                }
+
+                localStorage.setItem('txtIpAndPort', uri);               
+                localStorage.setItem('txtPassword', document.getElementById('txtPassword').value);       
+                
+                createSocket();
+            }
+
+
+
+            // 创建和连接端口
+            function createSocket() {
+               
+                if (socket){
+                    try{
+                        socket.close();
+                        socket = undefined;
+                    }catch{}                    
+                }
+
+                var uri = document.getElementById('txtIpAndPort').value;
+
+                // create websocket connection.
+                try{
+                    socket = new WebSocket(`ws://${uri}/ws`);
+                }
+                catch(e){
+                    document.getElementById('state').innerHTML = `<font color=red>Error:${e.message}</font>`;
+                    return;
+                }
+                
+
+                var msgSerial = 1;
+
+                document.getElementById('state').innerHTML = '<font color=gray>连接中...</font>';
+
+                // register events
+                socket.addEventListener('open', function (event) {
+                    console.log('websocket connected.', event);
+                    document.getElementById('state').innerHTML = '<font color=green>已连接</font>';
+                });
+
+                socket.addEventListener('error', function (event) {
+                    console.warn('websocket error.', event);
+                    document.getElementById('state').innerHTML = '<font color=red>Error</font>';
+                });
+
+                socket.addEventListener('close', function (event) {
+                    console.warn('websocket closed.', event);
+                    document.getElementById('state').innerHTML = '<font color=black>已关闭</font>';
+                });
+
+
+
+                socket.addEventListener('message', function (event) {
+                    console.log('websocket message:', event);
+
+                    var data = event.data;
+                    if (typeof data === 'string' || data instanceof String) {
+                        var msg = JSON.parse(data);
+
+                        // 请求消息
+                        if (msg.messageType === 2) {
+                            if (msg.operation === 'sendfile') {
+                                _nextFileName = msg.data;
+                                console.log('next file name:', _nextFileName);
+                            }
+                        }
+                    } else {
+                        // 文件内容数据
+                        if (_nextFileName) {
+                            SaveBlobAs(data, _nextFileName);
+                            _nextFileName = undefined;
+                            //TODO: 提示已接收到文件并保存
+                        } else {
+                            console.warn('Blob消息，没有要接收的文件。');
+                        }
+                    }
+
+                });
+            }
+
 
 
 
