@@ -1,0 +1,168 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebSocket测试-- Quicker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <style>
+        body {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h4 class="mb-4">Quicker Websocket服务测试</h1>
+        <div class="mb-4">
+            <h5>连接状态
+                <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
+                    连接设置
+                </a>
+                </h3>
+                <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
+
+                </div>
+                <div>
+                    <span id="state"></span>
+                </div>
+        </div>
+        <div>
+            <h5>上传文件</h2>
+                <input type="file" id="theFile" onchange="sendFile()" />
+        </div>
+
+        <div class="toast-container">
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Bootstrap</strong>
+                    <small class="text-muted">just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    See? Just like this.
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+        <script>
+
+            // create websocket connection.
+            const socket = new WebSocket('ws://localhost:668/ws');
+
+            var msgSerial = 1;
+
+            document.getElementById('state').innerHTML = '<font color=gray>连接中...</font>';
+
+            // register events
+            socket.addEventListener('open', function (event) {
+                console.log('websocket connected.', event);
+                document.getElementById('state').innerHTML = '<font color=green>已连接</font>';
+            });
+
+            socket.addEventListener('error', function (event) {
+                console.warn('websocket error.', event);
+                document.getElementById('state').innerHTML = '<font color=red>Error</font>';
+            });
+
+            socket.addEventListener('close', function (event) {
+                console.warn('websocket closed.', event);
+                document.getElementById('state').innerHTML = '<font color=black>已关闭</font>';
+            });
+
+            var _nextFileName = undefined;
+
+            socket.addEventListener('message', function (event) {
+                console.log('websocket message:', event);
+
+                var data = event.data;
+                if (typeof data === 'string' || data instanceof String) {
+                    var msg = JSON.parse(data);
+
+                    // 请求消息
+                    if (msg.messageType === 2) {
+                        if (msg.operation === 'sendfile') {
+                            _nextFileName = msg.data;
+                            console.log('next file name:', _nextFileName);
+                        }
+                    }
+                } else {
+                    // 文件内容数据
+                    if (_nextFileName) {
+                        SaveBlobAs(data, _nextFileName);
+                        _nextFileName = undefined;
+                        //TODO: 提示已接收到文件并保存
+                    } else {
+                        console.warn('Blob消息，没有要接收的文件。');
+                    }
+
+
+                }
+
+            });
+
+
+
+
+            // 发送文件
+            function sendFile() {
+                var file = document.getElementById('theFile').files[0];
+
+                if (!file) {
+                    console.log('没有文件。');
+                    return
+                }
+                if (file.size > 10000000) {
+                    alert('File should be smaller than 1MB')
+                    return
+                }
+
+                var filename = file.name;
+                console.log('file name:', filename);
+
+                var msg = {
+                    messageType: 2,
+                    operation: 'sendfile',
+                    serial: msgSerial++,
+                    data: filename
+                };
+
+                socket.send(JSON.stringify(msg));
+
+                var reader = new FileReader();
+                var rawData = new ArrayBuffer();
+                reader.loadend = function () {
+                }
+                reader.onload = function (e) {
+                    rawData = e.target.result;
+                    socket.send(rawData);
+
+                    alert("文件已发送");
+                }
+                reader.readAsArrayBuffer(file);
+            }
+
+            function SaveBlobAs(blob, file_name) {
+                if (typeof navigator.msSaveBlob == "function")
+                    return navigator.msSaveBlob(blob, file_name);
+
+                var saver = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+                var blobURL = saver.href = URL.createObjectURL(blob),
+                    body = document.body;
+
+                saver.download = file_name;
+
+                body.appendChild(saver);
+                saver.dispatchEvent(new MouseEvent("click"));
+                body.removeChild(saver);
+                URL.revokeObjectURL(blobURL);
+            }
+        </script>
+</body>
+
+</html>
