@@ -104,9 +104,13 @@
                 createSocket();
             }
 
+            // 设置状态文字
+            function setStateContent(content){
+                document.getElementById('state').innerHTML = content;
+            }
 
 
-            // 创建和连接端口
+            // 创建和连接端口，注册消息处理事件
             function createSocket() {
                
                 if (socket){
@@ -118,34 +122,39 @@
 
                 var uri = document.getElementById('txtIpAndPort').value;
 
+                if (!uri){
+                    setStateContent('<span class="text-warning">IP和端口设置不正确。</span>');
+                    return;
+                }
+
                 // create websocket connection.
                 try{
                     socket = new WebSocket(`ws://${uri}/ws`);
                 }
                 catch(e){
-                    document.getElementById('state').innerHTML = `<font color=red>Error:${e.message}</font>`;
+                    setStateContent(`<font color=red>Error:${e.message}</font>`);
                     return;
                 }
                 
 
                 var msgSerial = 1;
 
-                document.getElementById('state').innerHTML = '<font color=gray>连接中...</font>';
+                setStateContent('<font color=gray>连接中...</font>');
 
                 // register events
                 socket.addEventListener('open', function (event) {
                     console.log('websocket connected.', event);
-                    document.getElementById('state').innerHTML = '<font color=green>已连接</font>';
+                    setStateContent('<font color=green>已连接</font>');
                 });
 
                 socket.addEventListener('error', function (event) {
                     console.warn('websocket error.', event);
-                    document.getElementById('state').innerHTML = '<font color=red>Error</font>';
+                    setStateContent('<font color=red>Error</font>');
                 });
 
                 socket.addEventListener('close', function (event) {
                     console.warn('websocket closed.', event);
-                    document.getElementById('state').innerHTML = '<font color=black>已关闭</font>';
+                    setStateContent('<font color=black>已关闭</font>');
                 });
 
 
