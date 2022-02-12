@@ -17,7 +17,7 @@
 <body>
     <h4 class="mb-4">Quicker Websocket服务测试</h1>
         <div class="mb-4">
-            <h5>连接状态
+            <h5>连接状态：
                 <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
                     连接设置
                 </a>
@@ -42,13 +42,27 @@
                 </div>
             </div>
             <div>
-                <span id="state">未连接.</span>
+                <span id="state" class="p-2 border d-block">未连接.</span>
+                <span id="error" class="text-danger" style="font-size:0.8em"></span>
             </div>
         </div>
-        <div>
-            <h5>发送文件</h5>
-            <input type="file" id="theFile" onchange="sendFile()" />
+
+        
+        <div class="card">
+            <h5 class="card-header">发送文件</h5>
+            <div class="card-body">
+                <input type="file" id="theFile" onchange="sendFile()" />
+            </div>
         </div>
+
+        <div class="card">
+            <h5 class="card-header">消息测试</h5>
+            <div class="card-body">
+                <label>内容/动作参数</label>
+                
+            </div>
+        </div>
+
 
         <div class="toast-container">
             <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -66,11 +80,13 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
             crossorigin="anonymous"></script>
-        <script>
+        <script src="./file-saver.js"  crossorigin="anonymous"></script>
+        <script >
 
             var socket; // WebSocket对象
             var _nextFileName = undefined; // 接收文件的文件名
 
+            var pnlSettings = document.getElementById('pnlSettings');
 
             // 加载设置数据
             function loadData() {
@@ -80,7 +96,7 @@
                 }
                 var pwd = localStorage.getItem('txtPassword');
                 if (pwd) {
-                    document.getElementById('txtPassword').value = uri;
+                    document.getElementById('txtPassword').value = pwd;
                 }
 
                 createSocket();
@@ -90,54 +106,76 @@
 
 
             // 保存设置数据
-            function saveSettings(){
+            function saveSettings() {
                 let uri = document.getElementById('txtIpAndPort').value;
 
-                if (!uri.match(/\d+\.\d+\.\d+\.\d+\:\d+/i)){
+                if (! /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9][0-9]|6[0-4][0-9][0-9][0-9][0-9]|[1-5](\d){4}|[1-9](\d){0,3})$/.test(uri)) {
                     alert('格式不合法，应该为“IP地址:端口”。可参考：192.168.1.100:668')
                     return;
                 }
 
-                localStorage.setItem('txtIpAndPort', uri);               
-                localStorage.setItem('txtPassword', document.getElementById('txtPassword').value);       
-                
+                localStorage.setItem('txtIpAndPort', uri);
+                localStorage.setItem('txtPassword', document.getElementById('txtPassword').value);
+
+                new bootstrap.Collapse(pnlSettings, { hide: true });
+
                 createSocket();
             }
 
             // 设置状态文字
-            function setStateContent(content){
+            function setStateContent(content) {
                 document.getElementById('state').innerHTML = content;
+            }
+            function showError(error){
+                document.getElementById('error').innerHTML = document.getElementById('error').innerHTML + '<br/>'+ error;
             }
 
 
+           
+
+
+            // 消息序号
+            var msgSerial = 1;
+
             // 创建和连接端口，注册消息处理事件
             function createSocket() {
-               
-                if (socket){
-                    try{
+
+                if (socket) {
+                    try {
                         socket.close();
                         socket = undefined;
-                    }catch{}                    
+                    } catch { }
                 }
 
-                var uri = document.getElementById('txtIpAndPort').value;
+                let ipPort = document.getElementById('txtIpAndPort').value;
 
-                if (!uri){
+                if (!ipPort) {
                     setStateContent('<span class="text-warning">IP和端口设置不正确。</span>');
                     return;
                 }
 
-                // create websocket connection.
-                try{
-                    socket = new WebSocket(`ws://${uri}/ws`);
+                let pwd = document.getElementById('txtPassword').value;
+
+                let uri = '';
+                if (pwd) {
+                    uri = `ws://quicker:${pwd}@${ipPort}/ws`;
+                } else {
+                    uri = `ws://${ipPort}/ws`;
                 }
-                catch(e){
+                console.log('connecting to uri:', uri);
+
+
+                // create websocket connection.
+                try {
+                    socket = new WebSocket(uri);
+                }
+                catch (e) {
                     setStateContent(`<font color=red>Error:${e.message}</font>`);
                     return;
                 }
-                
 
-                var msgSerial = 1;
+
+               
 
                 setStateContent('<font color=gray>连接中...</font>');
 
@@ -149,12 +187,13 @@
 
                 socket.addEventListener('error', function (event) {
                     console.warn('websocket error.', event);
-                    setStateContent('<font color=red>Error</font>');
+                    //setStateContent('<font color=red>Error</font>');
+                   showError(''+ JSON.stringify(event, Object.getOwnPropertyNames(event)));
                 });
 
                 socket.addEventListener('close', function (event) {
                     console.warn('websocket closed.', event);
-                    setStateContent('<font color=black>已关闭</font>');
+                    setStateContent('<font color=red>已关闭</font>');
                 });
 
 
@@ -188,6 +227,7 @@
             }
 
 
+            //import { saveAs } from './file-saver.js';
 
 
 
@@ -199,8 +239,8 @@
                     console.log('没有文件。');
                     return
                 }
-                if (file.size > 10000000) {
-                    alert('File should be smaller than 1MB')
+                if (file.size > 200000000) {
+                    alert('File should be smaller than 200MB')
                     return
                 }
 
@@ -230,6 +270,16 @@
             }
 
             function SaveBlobAs(blob, file_name) {
+               // var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+               showError("saving file.");
+               try{
+                saveAs(blob, file_name);
+               }catch(e){
+                    showError('保存文件出错！' + JSON.stringify(e, JSON.stringify(e, ["message", "arguments", "type", "name"])));
+               }
+                
+
+                /*
                 if (typeof navigator.msSaveBlob == "function")
                     return navigator.msSaveBlob(blob, file_name);
 
@@ -243,6 +293,7 @@
                 saver.dispatchEvent(new MouseEvent("click"));
                 body.removeChild(saver);
                 URL.revokeObjectURL(blobURL);
+                */
             }
         </script>
 </body>
