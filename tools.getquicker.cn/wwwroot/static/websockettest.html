@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>WebSocket测试-- Quicker</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
@@ -13,52 +15,63 @@
             background-color: #F0F0F0;
         }
 
+        #exampleModal {
+            touch-action: none;
+        }
+
+
         .num-button {
             height: 50px;
             width: 60px;
             margin: 0 1px 5px 0 !important;
         }
 
-        #touch-pad{
+        #touch-pad {
             aspect-ratio: 16 / 9;
         }
     </style>
 </head>
 
 <body>
-    <h4 class="mb-4">Quicker Websocket服务测试</h1>
-        <div class="mb-4">
-            <h5>连接状态：
-                <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
-                    连接设置
-                </a>
-            </h5>
-            <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
-                <div class="mb-3 row">
-                    <label class=" col-form-label col-sm-3">电脑IP和端口：</label>
-                    <div class="col-sm-9">
-                        <input type='text' class='form-control' id='txtIpAndPort' title="192.168.1.10:668">
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label class=" col-form-label col-sm-3">验证码：</label>
-                    <div class="col-sm-9">
-                        <input type='password' class='form-control' id='txtPassword'>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <button class="btn btn-primary" id="btnSave" onclick="saveSettings()">保存并连接</button>
-                    </div>
+    <h4 class="mb-4">Quicker Websocket测试</h4>
+    <div class="mb-4">
+        <h5>连接状态：
+            <a class='btn btn-sm btn-outline-primary' data-bs-toggle='collapse' href='#pnlSettings' role='button'>
+                连接设置
+            </a>
+        </h5>
+        <div id='pnlSettings' class="collapse p-2 bg-light mb-3">
+            <div class="mb-3 row">
+                <label class=" col-form-label col-sm-3">电脑IP：</label>
+                <div class="col-sm-9">
+                    <input type='text' class='form-control' id='txtIp' >
                 </div>
             </div>
-            <div>
-                <div id="state" class="p-2 border d-block bg-light sticky-top">未连接.</span>
-                    <span id="error" class="text-danger bg-light" style="font-size:0.8em"></span>
+            <div class="mb-3 row">
+                <label class=" col-form-label col-sm-3">端口：</label>
+                <div class="col-sm-9">
+                    <input type='text' class='form-control' id='txtPort'>
                 </div>
             </div>
+            <div class="mb-3 row">
+                <label class=" col-form-label col-sm-3">验证码：</label>
+                <div class="col-sm-9">
+                    <input type='password' class='form-control' id='txtPassword'>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" id="btnSave" onclick="saveSettings()">保存并连接</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div id="state" class="p-2 border bg-light sticky-top">未连接</div>
+            <span id="error" class="text-danger bg-light" style="font-size:0.8em"></span>
+        </div>
 
 
+        <div id="tests" class="d-none">
             <div class="card mt-3">
                 <h5 class="card-header">发送文件</h5>
                 <div class="card-body">
@@ -73,7 +86,7 @@
                     <textarea id="txtData" class="form-control" rows="4" placeholder="要复制、发送的内容或动作的参数"></textarea>
                     <label class="mt-2">动作名称或ID：</label>
                     <input type="text" class="form-control" id="txtAction" placeholder="执行动作时需要" />
-                    <div class="mt-1">
+                    <div class="mt-2 ">
                         <button class="btn btn-outline-primary" onclick="commonOperation('copy')">复制</button>
                         <button class="btn  btn-outline-primary" onclick="commonOperation('paste')">粘贴</button>
                         <button class="btn  btn-outline-primary" onclick="commonOperation('inputtext')">模拟输入</button>
@@ -91,58 +104,82 @@
                     <div class="">
                         <label class="d-block">移动鼠标</label>
 
-                        <button class="btn btn-outline-secondary" onclick="moveMouse(-10,0)">←</button>
-                        <button class="btn btn-outline-secondary" onclick="moveMouse(10,0)">→</button>
-                        <button class="btn btn-outline-secondary" onclick="moveMouse(0,-10)">↑</button>
-                        <button class="btn btn-outline-secondary" onclick="moveMouse(0,10)">↓</button>
+                        <button class="btn btn-outline-primary" onclick="moveMouse(-10,0)">←</button>
+                        <button class="btn btn-outline-primary" onclick="moveMouse(10,0)">→</button>
+                        <button class="btn btn-outline-primary" onclick="moveMouse(0,-10)">↑</button>
+                        <button class="btn btn-outline-primary" onclick="moveMouse(0,10)">↓</button>
 
-                        <button class="btn btn-outline-secondary"
+                        <button class="btn btn-outline-primary"
                             onclick="inputScript('moveTo:100,100')">移动到100,100</button>
-                        <button class="btn btn-outline-secondary" onclick="inputScript('moveTo:50%,50%')">移动到中心</button>
-                        
-                        <!-- 触控板 -->
-                        <div class="mt-3 bg-secondary" id="touch-pad">
+                        <button class="btn btn-outline-primary" onclick="inputScript('moveTo:50%,50%')">移动到中心</button>
 
+                        <!-- 触控板 -->
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            触摸板
+                        </button>
+                        <!-- 触摸板 -->
+                        <div class="modal" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false"
+                            tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog  modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">极简触摸板</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mt-3 bg-secondary" id="touch-pad">
+                                        </div>
+
+                                        <div class="text-secondary small">长按0.5s抬起触发右键</div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
 
                     </div>
                     <div class="mt-3">
                         <label class="d-block">快捷键</label>
-                        <button class="btn btn-outline-secondary" onclick="inputScript('hotkey:Win')">Win</button>
+                        <button class="btn btn-outline-primary" onclick="inputScript('hotkey:Win')">Win</button>
 
-                        <button class="btn btn-outline-secondary " onclick="inputScript('hotkey:Win+D')">Win+D</button>
-                        <button class="btn btn-outline-secondary "
-                            onclick="inputScript('hotkey:Ctrl+N')">Ctrl+N</button>
+                        <button class="btn btn-outline-primary " onclick="inputScript('hotkey:Win+D')">Win+D</button>
+                        <button class="btn btn-outline-primary " onclick="inputScript('hotkey:Ctrl+N')">Ctrl+N</button>
 
                         <!-- 数字键盘 -->
                         <div class="mt-2 ">
 
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:7')">7</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:8')">8</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:9')">9</button>
                             <br>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:4')">4</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:5')">5</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:6')">6</button>
                             <br>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:1')">1</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:2')">2</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:3')">3</button>
                             <br>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:backspace')">&lt;</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:0')">0</button>
-                            <button class="btn btn-outline-secondary num-button"
+                            <button class="btn btn-outline-primary num-button"
                                 onclick="inputScript('keypress:.')">.</button>
                         </div>
 
@@ -154,339 +191,478 @@
                         <label class="d-block ">发送文本&nbsp;<span
                                 class="small text-secondary ml-3 d-inline-block">焦点放入记事本窗口后测试</span></label>
 
-                        <button class="btn btn-outline-secondary" onclick="inputScript('input:Hello World!')">Hello
+                        <button class="btn btn-outline-primary" onclick="inputScript('input:Hello World!')">Hello
                             World</button>
-                        <button class="btn btn-outline-secondary"
+                        <button class="btn btn-outline-primary"
                             onclick="inputScript('input2:Hello\\tWorld!\\r\\n新的一行')">带转义的文本</button>
                     </div>
 
                 </div>
             </div>
+        </div>
+
+        <div class="card mt-3">
+            <h5 class="card-header">其它</h5>
+            <div class="card-body">
+                从PC向手机端发送文件：仅支持安卓，iOS会自动断开连接。
+            </div>
+        </div>
 
 
-            <div class="card mt-3">
-                <h5 class="card-header">其它</h5>
-                <div class="card-body">
-                    从PC向手机端发送文件：仅支持安卓，iOS会自动断开连接。
+
+        <div class="toast-container">
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Bootstrap</strong>
+                    <small class="text-muted">just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    See? Just like this.
                 </div>
             </div>
+        </div>
 
-            <div class="toast-container">
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <strong class="me-auto">Bootstrap</strong>
-                        <small class="text-muted">just now</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        See? Just like this.
-                    </div>
-                </div>
-            </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+        <script src="./file-saver.js" crossorigin="anonymous"></script>
+        <script>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-                crossorigin="anonymous"></script>
-            <script src="./file-saver.js" crossorigin="anonymous"></script>
-            <script>
+            var socket; // WebSocket对象
+            var _nextFileName = undefined; // 接收文件的文件名
 
-                var socket; // WebSocket对象
-                var _nextFileName = undefined; // 接收文件的文件名
+            var pnlSettings = document.getElementById('pnlSettings');
 
-                var pnlSettings = document.getElementById('pnlSettings');
+            // 消息序号
+            var msgSerial = 1;
 
-                // 加载设置数据
-                function loadData() {
-                    var uri = localStorage.getItem('txtIpAndPort');
-                    if (uri) {
-                        document.getElementById('txtIpAndPort').value = uri;
-                    }
-                    var pwd = localStorage.getItem('txtPassword');
-                    if (pwd) {
-                        document.getElementById('txtPassword').value = pwd;
-                    }
-
-                    createSocket();
-                };
-
-                loadData();
-
-
-                // 保存设置数据
-                function saveSettings() {
-                    let uri = document.getElementById('txtIpAndPort').value;
-
-                    if (! /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9][0-9]|6[0-4][0-9][0-9][0-9][0-9]|[1-5](\d){4}|[1-9](\d){0,3})$/.test(uri)) {
-                        alert('格式不合法，应该为“IP地址:端口”。可参考：192.168.1.100:668')
-                        return;
-                    }
-
-                    localStorage.setItem('txtIpAndPort', uri);
-                    localStorage.setItem('txtPassword', document.getElementById('txtPassword').value);
-
-                    new bootstrap.Collapse(pnlSettings, { hide: true });
-
-                    createSocket();
+            // 加载设置数据
+            function loadData() {
+                var uri = localStorage.getItem('txtIpAndPort');
+                if (uri) {
+                    document.getElementById('txtIpAndPort').value = uri;
+                }
+                var pwd = localStorage.getItem('txtPassword');
+                if (pwd) {
+                    document.getElementById('txtPassword').value = pwd;
                 }
 
-                // 设置状态文字
-                function setStateContent(content) {
-                    document.getElementById('state').innerHTML = content;
+                createSocket();
+            };
+
+            loadData();
+
+
+            // 保存设置数据
+            function saveSettings() {
+                let uri = document.getElementById('txtIpAndPort').value;
+
+                if (! /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9][0-9]|6[0-4][0-9][0-9][0-9][0-9]|[1-5](\d){4}|[1-9](\d){0,3})$/.test(uri)) {
+                    alert('格式不合法，应该为“IP地址:端口”。可参考：192.168.1.100:668')
+                    return;
                 }
-                function showError(error) {
-                    document.getElementById('error').innerHTML =
-                        // document.getElementById('error').innerHTML + '<br/>'+ 
-                        error;
-                }
+
+                localStorage.setItem('txtIpAndPort', uri);
+                localStorage.setItem('txtPassword', document.getElementById('txtPassword').value);
+
+                new bootstrap.Collapse(pnlSettings, { hide: true });
+
+                createSocket();
+            }
+
+            // 设置状态文字
+            function setStateContent(content) {
+                document.getElementById('state').innerHTML = content;
+            }
+
+            // 显示错误信息
+            function showError(error) {
+                document.getElementById('error').innerHTML = document.getElementById('error').innerHTML + '<div>' + error + '</div>';
+            }
 
 
 
+            window.onerror = function (e) {
+                showError('window error:', e.message);
+            }
 
 
 
-                // 消息序号
-                var msgSerial = 1;
-
-                // 创建和连接端口，注册消息处理事件
-                function createSocket() {
-
-                    if (socket) {
-                        try {
-                            socket.close();
-                            socket = undefined;
-                        } catch { }
-                    }
-
-                    let ipPort = document.getElementById('txtIpAndPort').value;
-
-                    if (!ipPort) {
-                        setStateContent('<span class="text-warning">IP和端口设置不正确。</span>');
-                        return;
-                    }
-
-                    let pwd = document.getElementById('txtPassword').value;
-
-                    let uri = '';
-                    if (pwd) {
-                        uri = `ws://quicker:${pwd}@${ipPort}/ws`;
-                    } else {
-                        uri = `ws://${ipPort}/ws`;
-                    }
-                    console.log('connecting to uri:', uri);
-
-
-                    // create websocket connection.
+            // 创建和连接端口，注册消息处理事件
+            function createSocket() {
+               
+                if (socket) {
                     try {
-                        socket = new WebSocket(uri);
+                        socket.close();
+                        socket = undefined;
+                    } catch { }
+                }
+
+                document.getElementById('error').innerHTML = ''; //clear error message
+
+                let ipPort = document.getElementById('txtIpAndPort').value;
+
+                if (!ipPort) {
+                    setStateContent('<span class="text-warning">IP和端口设置不正确。</span>');
+                    return;
+                }
+
+                let pwd = document.getElementById('txtPassword').value;
+
+                let uri = '';
+                // if (pwd) {
+                //     uri = `wss://quicker:${pwd}@${ipPort}/ws`;
+                // } else {
+                //     uri = `wss://${ipPort}/ws`;
+                // }
+                uri = `wss://192-168-1-56.lan.quicker.cc:668/ws`;
+
+                console.log('connecting to uri:', uri);
+
+
+                // create websocket connection.
+                try {
+                    socket = new WebSocket(uri);
+                }
+                catch (e) {
+                    console.log('connect to websocket failed.', e);
+                    showError(`<font color=red>Error:${e.message}</font>`);
+                    return;
+                }
+
+
+                setStateContent('<span class="text-info">连接中...</span>');
+
+                // register events
+                socket.addEventListener('open', function (event) {
+                    console.log('websocket connected.', event);
+                    setStateContent('<font color=green>已连接</font>');
+
+                    document.getElementById('tests').classList.remove('d-none');
+                });
+
+                socket.addEventListener('error', function (event) {
+                    console.warn('websocket error.', event);
+                    //setStateContent('<font color=red>Error</font>');
+                    showError('ws error:' + JSON.stringify(event, Object.getOwnPropertyNames(event)));
+                });
+
+                socket.addEventListener('close', function (event) {
+                    console.warn('websocket closed.', event);
+                    setStateContent('<font color=red>已关闭</font>');
+
+                    var modelEle = document.getElementById('exampleModal');
+                    var modal = bootstrap.Modal.getInstance(modelEle);
+                    if (modal) {
+                        modal.hide();
                     }
-                    catch (e) {
-                        setStateContent(`<font color=red>Error:${e.message}</font>`);
-                        return;
+
+
+                    document.getElementById('tests').classList.add('d-none');
+
+
+                    delete socket;
+                    socket = undefined;
+                    setTimeout(function () {
+                        createSocket();
+                    }, 3000);
+                });
+
+                function base64toBlob(base64Data, contentType) {
+                    contentType = contentType || '';
+                    var sliceSize = 1024;
+                    var byteCharacters = atob(base64Data);
+                    var bytesLength = byteCharacters.length;
+                    var slicesCount = Math.ceil(bytesLength / sliceSize);
+                    var byteArrays = new Array(slicesCount);
+
+                    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                        var begin = sliceIndex * sliceSize;
+                        var end = Math.min(begin + sliceSize, bytesLength);
+
+                        var bytes = new Array(end - begin);
+                        for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+                            bytes[i] = byteCharacters[offset].charCodeAt(0);
+                        }
+                        byteArrays[sliceIndex] = new Uint8Array(bytes);
                     }
+                    return new Blob(byteArrays, { type: contentType });
+                }
 
 
+                socket.addEventListener('message', function (event) {
+                    //console.log('websocket message:', event);
+                    //showError('new message '+ typeof(event.data));
 
+                    var data = event.data;
+                    if (typeof data === 'string' || data instanceof String) {
+                        var msg = JSON.parse(data);
 
-                    setStateContent('<font color=gray>连接中...</font>');
-
-                    // register events
-                    socket.addEventListener('open', function (event) {
-                        console.log('websocket connected.', event);
-                        setStateContent('<font color=green>已连接</font>');
-                    });
-
-                    socket.addEventListener('error', function (event) {
-                        console.warn('websocket error.', event);
-                        //setStateContent('<font color=red>Error</font>');
-                        showError('ws error:' + JSON.stringify(event, Object.getOwnPropertyNames(event)));
-                    });
-
-                    socket.addEventListener('close', function (event) {
-                        console.warn('websocket closed.', event);
-                        setStateContent('<font color=red>已关闭</font>');
-                    });
-
-
-
-                    socket.addEventListener('message', function (event) {
-                        console.log('websocket message:', event);
-                        //showError('new message '+ typeof(event.data));
-
-                        var data = event.data;
-                        if (typeof data === 'string' || data instanceof String) {
-                            var msg = JSON.parse(data);
-
-                            // 请求消息
-                            if (msg.messageType === 2) {
-                                if (msg.operation === 'sendfile') {
+                        // 请求消息
+                        if (msg.messageType === 2) {
+                            if (msg.operation === 'sendfile') {
+                                if (!msg.extData) {
+                                    // 消息中没有extData，表示是通过二进制方式发送的文件内容，需要等下一个消息接收二进制数据
                                     _nextFileName = msg.data;
                                     console.log('next file name:', _nextFileName);
+                                } else {
+                                    // 有extData，它是文件内容的base64转换。
+                                    let blob = base64toBlob(msg.extData);
+                                    SaveBlobAs(blob, msg.data); // msg.data 为文件名。
                                 }
+
                             }
-                        } else {
-                            // 文件内容数据
-                            if (_nextFileName) {
-                                SaveBlobAs(data, _nextFileName);
-                                _nextFileName = undefined;
-                                //TODO: 提示已接收到文件并保存
-                            } else {
-                                console.warn('Blob消息，没有要接收的文件。');
+                            else if (msg.operation == 'copy') {
+                                document.getElementById('txtData').value = msg.data;
                             }
                         }
-
-                    });
-                }
-
-
-                //import { saveAs } from './file-saver.js';
-
-
-
-                // 发送文件
-                function sendFile() {
-                    var file = document.getElementById('theFile').files[0];
-
-                    if (!file) {
-                        console.log('没有文件。');
-                        return
-                    }
-                    if (file.size > 200000000) {
-                        alert('File should be smaller than 200MB')
-                        return
-                    }
-
-                    var filename = file.name;
-                    console.log('file name:', filename);
-
-                    var msg = {
-                        messageType: 2,
-                        operation: 'sendfile',
-                        serial: msgSerial++,
-                        data: filename
-                    };
-
-                    socket.send(JSON.stringify(msg));
-
-                    var reader = new FileReader();
-                    var rawData = new ArrayBuffer();
-                    reader.loadend = function () {
-                    }
-                    reader.onload = function (e) {
-                        rawData = e.target.result;
-                        socket.send(rawData);
-
-                        alert("文件已发送");
-                    }
-                    reader.readAsArrayBuffer(file);
-                }
-
-                // 保存接收到的文件
-                function SaveBlobAs(blob, file_name) {
-                    try {
-                        saveAs(blob, file_name);
-                    } catch (e) {
-                        showError('保存文件出错！' + JSON.stringify(e, JSON.stringify(e, ["message", "arguments", "type", "name"])));
-                    }
-                }
-
-                // 移动鼠标
-                function moveMouse(dx, dy) {
-                    dx = dx || '0';
-                    dy = dy || '0';
-
-                    var msg = {
-                        messageType: 2,
-                        operation: 'inputscript',
-                        data: `move:${dx},${dy}`
-                    }
-
-                    sendMsg(msg);
-                }
-
-                // 通用的多步骤输入脚本
-                function inputScript(data) {
-                    var msg = {
-                        messageType: 2,
-                        operation: 'inputscript',
-                        data: data
-                    }
-                    sendMsg(msg);
-                }
-
-                // 发送其他操作消息
-                function commonOperation(operation) {
-                    var data = document.getElementById('txtData').value;
-                    var action = document.getElementById('txtAction').value;
-
-                    if (operation === 'action' && !action) {
-                        alert('请输入动作名称或ID');
-                        document.getElementById('txtAction').focus();
-                        return;
-                    }
-
-                    var msg = {
-                        messageType: 2,
-                        operation: operation,
-                        data: data,
-                        action: action
-                    }
-                    sendMsg(msg);
-                }
-
-                // 粘贴剪贴板内容
-                function pasteClipboard() {
-                    // navigator.clipboard.readText().then(
-                    //     content => {
-                    //         document.getElementById('txtData').value = content;
-                    //         commonOperation('paste');
-                    //     }
-                    // )
-                    //     .catch(err => {
-                    //         alert('未能成功获取剪贴板内容。' + err);
-                    //     });
-
-
-                    // First, ask the Permissions API if we have some kind of access to
-                    // the "clipboard-read" feature.
-
-                    navigator.permissions.query({ name: "clipboard-read" }).then(result => {
-                        // If permission to read the clipboard is granted or if the user will
-                        // be prompted to allow it, we proceed.
-
-                        if (result.state == "granted" || result.state == "prompt") {
-                            navigator.clipboard.read().then(data => {
-                                for (let i = 0; i < data.items.length; i++) {
-                                    if (data.items[i].type != "text/plain") {
-                                        alert("Clipboard contains non-text data. Unable to access it.");
-                                    } else {
-                                        textElem.innerText = data.items[i].getAs("text/plain");
-                                    }
-                                }
-                            });
+                    } else {
+                        // 文件内容数据
+                        if (_nextFileName) {
+                            SaveBlobAs(data, _nextFileName);
+                            _nextFileName = undefined;
+                            //TODO: 提示已接收到文件并保存
                         } else {
-                            alert('未获得剪贴板权限。')
+                            console.warn('Blob消息，没有要接收的文件。');
                         }
-                    });
+                    }
+
+                });
+            }
+
+
+            //import { saveAs } from './file-saver.js';
+
+
+
+            // 发送文件
+            function sendFile() {
+                var file = document.getElementById('theFile').files[0];
+
+                if (!file) {
+                    console.log('没有文件。');
+                    return
+                }
+                if (file.size > 200000000) {
+                    alert('File should be smaller than 200MB')
+                    return
                 }
 
-                // 发送消息
-                function sendMsg(msg) {
-                    let resultMsg = Object.assign(msg, { serial: msgSerial++ });
+                var filename = file.name;
+                console.log('file name:', filename);
 
-                    socket.send(JSON.stringify(resultMsg));
+                var msg = {
+                    messageType: 2,
+                    operation: 'sendfile',
+                    serial: msgSerial++,
+                    data: filename
+                };
+
+                socket.send(JSON.stringify(msg));
+
+                var reader = new FileReader();
+                var rawData = new ArrayBuffer();
+                reader.loadend = function () {
+                }
+                reader.onload = function (e) {
+                    rawData = e.target.result;
+                    socket.send(rawData);
+
+                    alert("文件已发送");
+                }
+                reader.readAsArrayBuffer(file);
+            }
+
+            // 保存接收到的文件
+            function SaveBlobAs(blob, file_name) {
+                try {
+                    saveAs(blob, file_name);
+                } catch (e) {
+                    showError('保存文件出错！' + JSON.stringify(e, JSON.stringify(e, ["message", "arguments", "type", "name"])));
+                }
+            }
+
+            // 移动鼠标
+            function moveMouse(dx, dy) {
+                dx = Math.round(dx);
+                dy = Math.round(dy);
+
+                //console.log('send move:', dx, dy);
+
+                var msg = {
+                    messageType: 2,
+                    operation: 'inputscript',
+                    data: `move:${dx},${dy}`
                 }
 
+                sendMsg(msg);
+            }
 
-                // 触控板
-                function setupTouchpad(){
-                   var touchPad = document.getElementById('touch-pad');
-                        
+            // 通用的多步骤输入脚本
+            function inputScript(data) {
+                var msg = {
+                    messageType: 2,
+                    operation: 'inputscript',
+                    data: data
+                }
+                sendMsg(msg);
+            }
+
+            // 发送其他操作消息
+            function commonOperation(operation) {
+                var data = document.getElementById('txtData').value;
+                var action = document.getElementById('txtAction').value;
+
+                if (operation === 'action' && !action) {
+                    alert('请输入动作名称或ID');
+                    document.getElementById('txtAction').focus();
+                    return;
                 }
 
-                setupTouchpad();
+                var msg = {
+                    messageType: 2,
+                    operation: operation,
+                    data: data,
+                    action: action
+                }
+                sendMsg(msg);
+            }
+
+            // 粘贴剪贴板内容
+            function pasteClipboard() {
+                // navigator.clipboard.readText().then(
+                //     content => {
+                //         document.getElementById('txtData').value = content;
+                //         commonOperation('paste');
+                //     }
+                // )
+                //     .catch(err => {
+                //         alert('未能成功获取剪贴板内容。' + err);
+                //     });
 
 
-            </script>
+                // First, ask the Permissions API if we have some kind of access to
+                // the "clipboard-read" feature.
+
+                navigator.permissions.query({ name: "clipboard-read" }).then(result => {
+                    // If permission to read the clipboard is granted or if the user will
+                    // be prompted to allow it, we proceed.
+
+                    if (result.state == "granted" || result.state == "prompt") {
+                        navigator.clipboard.read().then(data => {
+                            for (let i = 0; i < data.items.length; i++) {
+                                if (data.items[i].type != "text/plain") {
+                                    alert("Clipboard contains non-text data. Unable to access it.");
+                                } else {
+                                    textElem.innerText = data.items[i].getAs("text/plain");
+                                }
+                            }
+                        });
+                    } else {
+                        alert('未获得剪贴板权限。')
+                    }
+                });
+            }
+
+            // 发送消息
+            function sendMsg(msg) {
+                let resultMsg = Object.assign(msg, { serial: msgSerial++ });
+
+                socket.send(JSON.stringify(resultMsg));
+            }
+
+
+
+            // 触控板
+            function setupTouchpad() {
+
+                // 计算移动距离，速度慢的时候短一些，快的时候加快一些
+                const low_speed_dist = 5;
+
+                // 计算要移动的距离：根据速度加速。（触屏采样频率基本是固定的）
+                function computeDelta(delta) {
+                    let d = delta * window.devicePixelRatio;
+                    let absD = Math.abs(d);
+                    if (absD < low_speed_dist) {
+                        return d;
+                    } else if (absD < 2 * low_speed_dist) {
+                        return d * 2;
+                    } else {
+                        return d * 4;
+                    }
+
+
+                }
+
+                var touchPad = document.getElementById('touch-pad');
+
+                let prevX = 0;          //移动时，前一次的坐标位置
+                let prevY = 0;
+                let prevTime = 0;       // 前一次的消息事件
+                let touchStartTime = 0; // 触摸开始时间
+                let hasMoved = false;   // 是否已经开始移动了
+
+                // 开始触摸
+                touchPad.addEventListener("touchstart", (ev) => {
+                    ev.preventDefault();
+
+                    prevX = ev.touches[0].clientX;
+                    prevY = ev.touches[0].clientY;
+                    touchStartTime = ev.timeStamp;
+                    prevTime = ev.timeStamp;
+                    hasMoved = false;
+                }, false);
+
+                // 结束触摸
+                touchPad.addEventListener("touchend", (ev) => {
+                    ev.preventDefault();
+
+                    let deltaTime = ev.timeStamp - touchStartTime;
+                    console.log('touch end', eval);
+
+                    if (!hasMoved) {
+                        if (deltaTime < 150) {
+                            inputScript('click:left');
+                        } else {
+                            inputScript('click:right');
+                        }
+                    }
+
+                }, false);
+
+
+                // 移动
+                touchPad.addEventListener("touchmove", (ev) => {
+                    ev.preventDefault();
+
+                    let nowX = ev.touches[0].clientX;
+                    let nowY = ev.touches[0].clientY;
+                    let nowTime = ev.timeStamp;
+                    let dx = nowX - prevX;
+                    let dy = nowY - prevY;
+                    let dt = nowTime - prevTime;
+
+                    //console.log('mv', dx, dy, dt);
+                    //moveMouse(dx*window.devicePixelRatio, dy*window.devicePixelRatio);
+                    if (!hasMoved) {
+                        moveMouse(dx, dy);
+                        hasMoved = true;
+                    } else {
+                        moveMouse(computeDelta(dx), computeDelta(dy));
+                    }
+
+                    prevX = nowX;
+                    prevY = nowY;
+                    prevTime = nowTime;
+                }, false);
+
+            }
+
+            setupTouchpad();
+
+
+        </script>
 </body>
 
 </html>
