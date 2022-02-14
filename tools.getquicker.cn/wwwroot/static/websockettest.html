@@ -32,7 +32,7 @@
         #qrcodescanner {
             height: 200px;
             width: auto;
-
+            margin: 5px;
         }
     </style>
 </head>
@@ -85,7 +85,12 @@
             </div>
         </div>
         <div>
-            <div id="state" class="p-2 border bg-light sticky-top">未连接</div>
+
+            <div class="p-2 border bg-light sticky-top">
+                <div id="state">未连接</div>
+                <div id="uri" class="text-secondary" style="font-size:12px;"></div>
+            </div>
+
             <span id="error" class="text-danger bg-light" style="font-size:0.8em"></span>
         </div>
 
@@ -99,7 +104,7 @@
             </div>
 
             <div class="card mt-3">
-                <h5 class="card-header ">消息测试</h5>
+                <h5 class="card-header ">普通消息</h5>
                 <div class="card-body">
                     <label>文本内容/动作参数：</label>
                     <textarea id="txtData" class="form-control" rows="4" placeholder="要复制、发送的内容或动作的参数"></textarea>
@@ -115,17 +120,20 @@
                         <button class="btn btn-outline-primary" onclick="pasteClipboard()">发送剪贴板</button>
 
                     </div>
-                    <div class="text-center">
-                    <video id="qrcodescanner" class="d-none"></video>
+                    <div class="">
+                        <video id="qrcodescanner" class="d-none"></video>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-outline-primary" onclick="scanQrcode()">扫码二维码</button>
+                      </div>
+                   
+
                 </div>
-                    <button class="btn btn-outline-primary" onclick="scanQrcode()">扫码二维码</button>
-                        
-                </div>
-                
+
             </div>
         </div>
         <div class="card mt-3">
-            <h5 class="card-header">键鼠消息</h5>
+            <h5 class="card-header">键鼠控制</h5>
             <div class="card-body">
 
                 <div class="">
@@ -253,6 +261,9 @@
     <script src="./libs/file-saver.js" crossorigin="anonymous"></script>
     <script src="./libs/qr-scanner@1.4.0/qr-scanner.umd.min.js" type="text/javascript"></script>
     <script>
+        const MSG_AUTH_REQ = 5;
+        const MSG_AUTH_RESP = 6;
+        const MSG_PUSH = 2;
 
         var socket; // WebSocket对象
         var _nextFileName = undefined; // 接收文件的文件名
@@ -263,6 +274,7 @@
         var txtPassword = document.getElementById('txtPassword');
         var chkSecure = document.getElementById('chkSecure');
 
+        var _password = undefined;
 
         // 消息序号
         var msgSerial = 1;
@@ -356,7 +368,7 @@
 
             let ip = txtIp.value;
             let port = txtPort.value;
-            let password = txtPassword.value;
+            _password = txtPassword.value;
 
             if (!ip) {
                 setStateContent('<span class="text-warning">IP和端口设置不正确。</span>');
@@ -377,21 +389,20 @@
                 uri = `${ip}:${port}`;
             }
 
-            if (password) {
-                uri = `${protocol}://quicker:${password}@${uri}/ws`;
-            } else {
-                uri = `${protocol}://${uri}/ws`;
-            }
+            uri = `${protocol}://${uri}/ws`;
 
-
-            // if (pwd) {
-            //     uri = `wss://quicker:${pwd}@${ipPort}/ws`;
+            document.getElementById('uri').innerHTML = uri;
+            // // this not work with iOS
+            // if (password) {
+            //     uri = `${protocol}://quicker:${password}@${uri}/ws`;
             // } else {
-            //     uri = `wss://${ipPort}/ws`;
+            //     uri = `${protocol}://${uri}/ws`;
             // }
-            //uri = `wss://192-168-1-56.lan.quicker.cc:668/ws`;
+
+
 
             console.log('connecting to uri:', uri);
+            //showError(uri);
 
 
             // create websocket connection.
@@ -410,9 +421,15 @@
             // register events
             socket.addEventListener('open', function (event) {
                 console.log('websocket connected.', event);
-                setStateContent('<font color=green>已连接</font>');
 
-                document.getElementById('tests').classList.remove('d-none');
+                setStateContent('<font color=green>已连接，待认证</font>');
+
+                // 设置了密码，要发送密码消息
+                if (_password) {
+                    sendMsg({ messageType: MSG_AUTH_REQ, data: _password });
+                }
+
+
             });
 
             socket.addEventListener('error', function (event) {
@@ -468,7 +485,7 @@
 
 
             socket.addEventListener('message', function (event) {
-                //console.log('websocket message:', event);
+                console.log('websocket message:', event);
                 //showError('new message '+ typeof(event.data));
 
                 var data = event.data;
@@ -476,24 +493,32 @@
                     var msg = JSON.parse(data);
 
                     // 请求消息
-                    if (msg.messageType === 2) {
-                        if (msg.operation === 'sendfile') {
-                            if (!msg.extData) {
-                                // 消息中没有extData，表示是通过二进制方式发送的文件内容，需要等下一个消息接收二进制数据
-                                _nextFileName = msg.data;
-                                console.log('next file name:', _nextFileName);
-                            } else {
-                                // 有extData，它是文件内容的base64转换。
-                                let blob = base64toBlob(msg.extData);
-                                SaveBlobAs(blob, msg.data); // msg.data 为文件名。
-                            }
+                    if (msg.messageType == MSG_AUTH_RESP) {
+                        if (msg.isSuccess) {
+                            setStateContent('<font color=green>已连接</font>');
+                            document.getElementById('tests').classList.remove('d-none');
+                        } else {
+                            setStateContent('<font color=red>认证失败</font>');
+                        }
+                    } else
+                        if (msg.messageType === MSG_PUSH) {
+                            if (msg.operation === 'sendfile') {
+                                if (!msg.extData) {
+                                    // 消息中没有extData，表示是通过二进制方式发送的文件内容，需要等下一个消息接收二进制数据
+                                    _nextFileName = msg.data;
+                                    console.log('next file name:', _nextFileName);
+                                } else {
+                                    // 有extData，它是文件内容的base64转换。
+                                    let blob = base64toBlob(msg.extData);
+                                    SaveBlobAs(blob, msg.data); // msg.data 为文件名。
+                                }
 
+                            }
+                            else if (msg.operation == 'copy') {
+                                document.getElementById('txtData').value = msg.data;
+                                writeClipboard(msg.data);
+                            }
                         }
-                        else if (msg.operation == 'copy') {
-                            document.getElementById('txtData').value = msg.data;
-                            writeClipboard(msg.data);
-                        }
-                    }
                 } else {
                     // 文件内容数据
                     if (_nextFileName) {
@@ -665,13 +690,12 @@
         // 扫描二维码，并在PC上打开网页
         var qrScanner;
         let videoElem = document.getElementById('qrcodescanner');
-        function stopQrcodeScan(){
-            if(qrScanner){
-                try{
+        function stopQrcodeScan() {
+            if (qrScanner) {
+                try {
                     qrScanner.stop();
-                    
-                }catch(e)
-                {
+
+                } catch (e) {
 
                 }
                 qrScanner = undefined;
@@ -679,59 +703,27 @@
             }
         }
         function scanQrcode() {
-            if (!qrScanner) {              
+            if (!qrScanner) {
                 videoElem.classList.remove('d-none');
 
                 qrScanner = new QrScanner(videoElem, result => {
-                    if (result.startsWith('http')){
+                    if (result.startsWith('http')) {
                         commonOperation('open', result);
-                    }else{
+                    } else {
                         commonOperation('copy', result);
                     }
 
                     stopQrcodeScan();
                 });
-                qrScanner.start();
-            }else{
+                try {
+                    qrScanner.start();
+                } catch (e) {
+                    alert('无法开始扫码，错误：' + e.message);
+                }
+
+            } else {
                 stopQrcodeScan();
             }
-
-
-            //                 let html5QrcodeScanner = undefined;
-            //                 function onScanSuccess(decodedText, decodedResult) {
-            //                     // handle the scanned code as you like, for example:
-            //                     //alert(`Code matched = ${decodedText}`, decodedResult);
-            //                     if (decodedResult.startsWith('http')) {
-            //                         commonOperation('open', decodedText);
-            //                         alert('open');
-            //                     } else {
-            //                         commonOperation('copy', decodedText);
-            //                         alert('copy');
-            //                     }
-
-
-
-            //                     if (html5QrcodeScanner) {
-            //                         html5QrcodeScanner.stop();
-            //                         document.getElementById('reader').innerHTML = '';
-            //                         alert('stoped.');
-            //                     } else {
-            //                         alert('no element to stop');
-            //                     }
-            //                 }
-
-            //                 function onScanFailure(error) {
-            //                     // handle scan failure, usually better to ignore and keep scanning.
-            //                     // for example:
-            //                     //console.warn(`扫描出错 = ${error}`);
-            //                     //alert(`扫描出错 = ${error}`);
-            //                 }
-
-            //                 html5QrcodeScanner = new Html5QrcodeScanner(
-            //                     "reader",
-            //                     { fps: 10, qrbox: { width: 250, height: 250 } },
-            //   /* verbose= */ false);
-            //                 html5QrcodeScanner.render(onScanSuccess, onScanFailure);
         }
 
         // 发送消息
