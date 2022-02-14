@@ -359,6 +359,7 @@
 
             if (socket) {
                 try {
+                    console.log('closing socket.');
                     socket.close();
                     socket = undefined;
                 } catch { }
