@@ -590,7 +590,7 @@
                 rawData = e.target.result;
                 socket.send(rawData);
 
-                alert("文件已发送");
+                console.log("文件已发送");
             }
             reader.readAsArrayBuffer(file);
         }
