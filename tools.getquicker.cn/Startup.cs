@@ -1,9 +1,14 @@
 using System;
 using System.IO;
+using System.Net.WebSockets;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,6 +52,11 @@ namespace QuickerWebTools
             });
 
             services.AddHttpContextAccessor();
+
+            services.AddWebSockets(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromSeconds(2);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +73,28 @@ namespace QuickerWebTools
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quicker Web Tools v1"));
 
+            // ¿ªÆôwebsocket²âÊÔ·þÎñ
+            app.UseWebSockets();
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/ws")
+                {
+                    if (context.WebSockets.IsWebSocketRequest)
+                    {
+                        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                        await Echo(webSocket);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
+                }
+                else
+                {
+                    await next(context);
+                }
+
+            });
 
             //app.UseHttpsRedirection();
 
@@ -79,6 +111,32 @@ namespace QuickerWebTools
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
             });
+        }
+
+
+        private static async Task Echo(WebSocket webSocket)
+        {
+
+            var buffer = new byte[1024 * 4];
+            var receiveResult = await webSocket.ReceiveAsync(
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            while (!receiveResult.CloseStatus.HasValue)
+            {
+                await webSocket.SendAsync(
+                    new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+                    receiveResult.MessageType,
+                    receiveResult.EndOfMessage,
+                    CancellationToken.None);
+
+                receiveResult = await webSocket.ReceiveAsync(
+                    new ArraySegment<byte>(buffer), CancellationToken.None);
+            }
+
+            await webSocket.CloseAsync(
+                receiveResult.CloseStatus.Value,
+                receiveResult.CloseStatusDescription,
+                CancellationToken.None);
         }
     }
 }
