@@ -1,4 +1,8 @@
-﻿using Markdig;
+﻿using System;
+using System.IO;
+using AngleSharp.Html;
+using AngleSharp.Html.Parser;
+using Markdig;
 using Microsoft.AspNetCore.Mvc;
 using QuickerWebTools.Entities;
 using ReverseMarkdown;
@@ -84,17 +88,20 @@ namespace QuickerWebTools.Controllers
         /// </summary>
         /// <param name="source">待转换的html代码</param>
         /// <returns>生成的markdown代码</returns>
-        private static string ConvertHtmlToMarkdown(string source)
+        public static string ConvertHtmlToMarkdown(string source)
         {
             if (string.IsNullOrEmpty(source))
             {
                 return "";
             }
+
+
+
             var config = new ReverseMarkdown.Config
             {
                 UnknownTags = Config.UnknownTagsOption.Bypass,
                 // generate GitHub flavoured markdown, supported for BR, PRE and table tags
-                GithubFlavored = true,
+                GithubFlavored = false,
                 // will ignore all comments
                 RemoveComments = true,
                 // remove markdown output for links where appropriate
@@ -102,8 +109,27 @@ namespace QuickerWebTools.Controllers
             };
 
             var converter = new ReverseMarkdown.Converter(config);
-            var markdown = converter.Convert(source);
+            var markdown = converter.Convert(ClearHtml(source));
             return markdown;
+        }
+
+        private static string ClearHtml(string html)
+        {
+            try
+            {
+                var parser = new HtmlParser();
+                var document = parser.ParseDocument(html);
+
+                using (var writer = new StringWriter())
+                {
+                    document.ToHtml(writer, new MinifyMarkupFormatter());
+                    return writer.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                return html;
+            }
         }
 
 
