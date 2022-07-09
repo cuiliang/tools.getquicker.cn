@@ -49,6 +49,11 @@ namespace QuickerWebTools.Controllers
             {
                 var ch = line[0];
 
+                if (ch == '刚')
+                {
+                    ;
+                }
+
                 if (ch < 0x9fff && ch >= 0x4e00)
                 {
                     var parts = line.Split('\t');
@@ -96,8 +101,8 @@ namespace QuickerWebTools.Controllers
         {
             var noSpace = part.Replace(" ", "");
             if (noSpace.Length == 2
-                && ("亻亻彳女忄扌氵冫犭纟土士口山巾弓忄方日目月木欠歹火片爿牜王石礻衤禾立米缶羊耒耳舟虫角讠豸贝足身车辛钅阝青革饣香马骨鱼黑鼠鼻齿口".IndexOf(part[0]) >= 0
-                    || "刂户攵斤瓦羽色见辛阝隹青页鸟".IndexOf(part[1]) >= 0))
+                && ("亻亻彳女忄扌氵冫犭纟土士口山巾弓忄方日目月木欠歹火片爿牜王石礻衤禾立米缶羊耒耳舟虫角讠豸贝足身车辛钅阝青革饣香马骨鱼黑鼠鼻齿口".IndexOf(noSpace[0]) >= 0
+                    || "刂户攵斤瓦羽色见辛阝隹青页鸟".IndexOf(noSpace[1]) >= 0))
             {
                 return true;
             }
