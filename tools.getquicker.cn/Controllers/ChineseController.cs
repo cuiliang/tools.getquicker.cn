@@ -306,5 +306,33 @@ namespace QuickerWebTools.Controllers
         }
 
         #endregion
+
+        #region OCR后处理
+
+        /// <summary>
+        /// 合并OCR结果中被拆成两部分的汉字。
+        /// 人尔弓虽！ = 你强！
+        /// </summary>
+        /// <param name="source">待处理的文本</param>
+        /// <returns>合并字符后的文本</returns>
+        [HttpGet]
+        public string MergeCnChars(string source)
+        {
+            return CnCharMerger.MergeCnChars(source);
+        }
+
+        /// <summary>
+        /// 合并OCR结果中被拆成两部分的汉字。
+        /// 人尔弓虽！ = 你强！
+        /// </summary>
+        /// <param name="vm">待处理的文本</param>
+        /// <returns>合并字符后的文本</returns>
+        [HttpPost]
+        public string MergeCnChars([FromBody] CommonRequestVm vm)
+        {
+            return CnCharMerger.MergeCnChars(vm.Source);
+        }
+
+        #endregion
     }
 }
