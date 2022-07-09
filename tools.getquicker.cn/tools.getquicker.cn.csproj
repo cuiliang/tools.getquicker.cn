@@ -12,12 +12,12 @@
 
 	<ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.0-alpha-844" />
-    <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.47" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
-    <PackageReference Include="Markdig" Version="0.28.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.49-beta1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
+    <PackageReference Include="Markdig" Version="0.30.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
     <PackageReference Include="ReverseMarkdown" Version="3.23.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     <PackageReference Include="ToolGood.Words" Version="3.0.3.1" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
