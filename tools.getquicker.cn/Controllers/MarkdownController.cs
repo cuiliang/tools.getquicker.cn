@@ -99,9 +99,10 @@ namespace QuickerWebTools.Controllers
 
             var config = new ReverseMarkdown.Config
             {
-                UnknownTags = Config.UnknownTagsOption.Bypass,
+                UnknownTags = Config.UnknownTagsOption.PassThrough,
+
                 // generate GitHub flavoured markdown, supported for BR, PRE and table tags
-                GithubFlavored = false,
+                GithubFlavored = true,
                 // will ignore all comments
                 RemoveComments = true,
                 // remove markdown output for links where appropriate
@@ -109,7 +110,11 @@ namespace QuickerWebTools.Controllers
             };
 
             var converter = new ReverseMarkdown.Converter(config);
-            var markdown = converter.Convert(ClearHtml(source));
+
+            //var markdown = converter.Convert(ClearHtml(source));
+            
+            var markdown = converter.Convert(source);
+
             return markdown;
         }
 
@@ -119,6 +124,7 @@ namespace QuickerWebTools.Controllers
             {
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(html);
+                
 
                 using (var writer = new StringWriter())
                 {
