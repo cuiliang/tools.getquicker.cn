@@ -24,6 +24,29 @@ namespace QuickerWebTools.Controllers.Tests
             {
                 Source = "ａｂｃＡＢＣ１２３"
             }));
+
+            Assert.AreEqual("abcA\r\nBC123", controller.ToDBC("ａｂｃＡ\r\nＢＣ１２３"));
+            Assert.AreEqual("abcA\r\nBC123", controller.ToDBC(new CommonRequestVm()
+            {
+                Source = "ａｂｃＡ\r\nＢＣ１２３"
+            }));
+        }
+
+        [TestMethod()]
+        public void ToSBCTest()
+        {
+
+            Assert.AreEqual("ａｂｃＡＢＣ１２３", controller.ToSBC("abcABC123"));
+            Assert.AreEqual("ａｂｃＡＢＣ１２３", controller.ToSBC(new CommonRequestVm()
+            {
+                Source = "abcABC123"
+            }));
+
+            Assert.AreEqual("ａｂｃＡ\r\nＢＣ１２３", controller.ToSBC("abcA\r\nBC123"));
+            Assert.AreEqual("ａｂｃＡ\r\nＢＣ１２３", controller.ToSBC(new CommonRequestVm()
+            {
+                Source = "abcA\r\nBC123"
+            }));
         }
 
         [TestMethod()]

@@ -233,8 +233,17 @@ namespace QuickerWebTools.Controllers
         [HttpGet]
         public string ToSBC(string source)
         {
+            //return WordsHelper.ToSBC(source);
+            return ProcessByLine(source, WordsHelper.ToSBC);
+        }
+
+        static string ToSBCInternal(string source)
+        {
             return WordsHelper.ToSBC(source);
         }
+
+
+
 
         /// <summary>
         /// 转换为全角
@@ -247,7 +256,8 @@ namespace QuickerWebTools.Controllers
         [HttpPost]
         public string ToSBC([FromBody] CommonRequestVm vm)
         {
-            return WordsHelper.ToSBC(vm.Source);
+            //return WordsHelper.ToSBC(vm.Source);
+            return ProcessByLine(vm.Source, WordsHelper.ToSBC);
         }
 
 
@@ -262,7 +272,8 @@ namespace QuickerWebTools.Controllers
         [HttpGet]
         public string ToDBC(string source)
         {
-            return WordsHelper.ToDBC(source);
+            //return WordsHelper.ToDBC(source);
+            return ProcessByLine(source, WordsHelper.ToDBC);
         }
 
         /// <summary>
@@ -276,7 +287,8 @@ namespace QuickerWebTools.Controllers
         [HttpPost]
         public string ToDBC([FromBody] CommonRequestVm vm)
         {
-            return WordsHelper.ToDBC(vm.Source);
+            //return WordsHelper.ToDBC(vm.Source);
+            return ProcessByLine(vm.Source, WordsHelper.ToDBC);
         }
         #endregion
 
@@ -331,6 +343,41 @@ namespace QuickerWebTools.Controllers
         public string MergeCnChars([FromBody] CommonRequestVm vm)
         {
             return CnCharMerger.MergeCnChars(vm.Source);
+        }
+
+        #endregion
+
+
+        #region 辅助处理
+
+        /// <summary>
+        /// 每行单独处理并返回结果
+        /// </summary>
+        /// <param name="text">需要处理的文本</param>
+        /// <param name="process"></param>
+        /// <returns></returns>
+        private static string ProcessByLine(string text, Func<string, string> process)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return "";
+            }
+
+            var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+            var result = new List<string>();
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    result.Add("");
+                }
+                else
+                {
+                    result.Add(process(line));
+                }
+            }
+
+            return string.Join("\r\n", result);
         }
 
         #endregion
