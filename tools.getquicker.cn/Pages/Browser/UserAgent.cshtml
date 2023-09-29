@@ -1,0 +1,49 @@
+﻿@page
+@model QuickerWebTools.Pages.Browser.UserAgentModel
+@{
+    ViewData["Title"] = "查看UserAgent";
+}
+<h1>您的浏览器UserAgent</h1>
+
+<div class="text-info border p-5 mb-1 mt-5 fs-2" id="user-agent">
+    @Model.UserAgent
+</div>
+<button class="btn btn-primary " onclick="copyToClipboard()">复制</button>
+<div id="liveAlertPlaceholder" class="mt-1">
+    
+</div>
+
+<div class="mt-5"></div>
+
+@section Scripts {
+    <script>
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const appendAlert = (message, type) => {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [
+                `<div class="alert alert-${type} alert-dismissible fade show" role="alert">`,
+                `   <div>${message}</div>`,
+                '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                '</div>'
+            ].join('')
+
+            alertPlaceholder.append(wrapper)
+        }
+
+        const copyToClipboard = async () => {
+            try {
+                const element = document.querySelector("#user-agent");
+                await navigator.clipboard.writeText(element.textContent);
+                console.log("Text copied to clipboard!");
+                appendAlert('已成功复制。', 'success');
+                // Optional: Provide feedback or perform additional actions upon successful copy
+            } catch (error) {
+                console.error("Failed to copy to clipboard:", error);
+
+                appendAlert('复制失败了。', 'danger');
+
+                // Optional: Handle and display the error to the user
+            }
+        };
+    </script>
+}
