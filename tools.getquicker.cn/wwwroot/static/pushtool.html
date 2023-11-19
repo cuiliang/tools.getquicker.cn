@@ -85,7 +85,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">要复制或粘贴的内容、打开的网址，或动作的参数:</label>
-                            <textarea v-model="data" class="form-control" rows="8" id="txtData" aria-describedby="emailHelp"></textarea>
+                            <textarea v-model="data" class="form-control" v-bind:rows="operation === 'ACTION' ? 2 : 8" id="txtData" aria-describedby="emailHelp"></textarea>
 
                         </div>
 
