@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="tools.getquicker.cn/tools.getquicker.cn.csproj" />
+  <Project Path="tools.getquicker.cnTests/tools.getquicker.cnTests.csproj" />
+</Solution>

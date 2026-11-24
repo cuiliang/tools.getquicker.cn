@@ -84,7 +84,7 @@ namespace QuickerWebTools.Controllers
         /// <summary>
         /// 输出一个字符映射
         /// </summary>
-        /// <param name="sb"></param>
+        /// <param name="dict">输出字符映射的字典</param>
         /// <param name="ch">字符</param>
         /// <param name="parts">被拆分的结果，中间以空格分开</param>
         private static void Output(IDictionary<string,string> dict, string ch, string parts)

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.WebSockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace QuickerWebTools
 {
@@ -44,7 +44,7 @@ namespace QuickerWebTools
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Quicker Web Tools", Version = "v1" });
 
-                // ¶ÁÈ¡xml×¢ÊÍµÄÐÅÏ¢
+                // è¯»å–xmlæ³¨é‡Šçš„ä¿¡æ¯
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -69,11 +69,11 @@ namespace QuickerWebTools
                 //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quicker Web Tools v1"));
             }
 
-            // API ÎÄµµÉú³É
+            // API æ–‡æ¡£ç”Ÿæˆ
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quicker Web Tools v1"));
 
-            // ¿ªÆôwebsocket²âÊÔ·þÎñ
+            // å¼€å¯websocketæµ‹è¯•æœåŠ¡
             app.UseWebSockets();
             app.Use(async (context, next) =>
             {
